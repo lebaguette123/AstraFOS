@@ -65,3 +65,51 @@ impl std::fmt::Display for SubsystemMetadataError{
 }
 
 impl std::error::Error for SubsystemMetadataError{}
+
+
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn test_valid_metadata_creation(){
+        let instance_id =  SubsystemInstanceId::new("valid-instance-id".to_string()).unwrap();
+        let type_id = SubsystemTypeId::new("valid-type-id".to_string()).unwrap();
+        let name = "Valid Subsystem".to_string();
+        let description = "A valid subsystem for testing".to_string();
+        let implementation_version = semver::Version::parse("1.0.0").unwrap();
+        let interface_version = semver::Version::parse("1.0.0").unwrap();
+
+        let metadata = SubsystemMetadata::new(instance_id, type_id, name, description, implementation_version, interface_version);
+        assert!(metadata.is_ok());
+    }
+
+    #[test]
+    fn reject_empty_name(){
+        let instance_id =  SubsystemInstanceId::new("valid-instance-id".to_string()).unwrap();
+        let type_id = SubsystemTypeId::new("valid-type-id".to_string()).unwrap();
+        let name = "".to_string();
+        let description = "A valid subsystem for testing".to_string();
+        let implementation_version = semver::Version::parse("1.0.0").unwrap();
+        let interface_version = semver::Version::parse("1.0.0").unwrap();
+
+        let metadata = SubsystemMetadata::new(instance_id, type_id, name, description, implementation_version, interface_version);
+        assert!(metadata.is_err());
+        assert_eq!(metadata.unwrap_err(), SubsystemMetadataError::InvalidName);
+    }
+
+    #[test]
+    fn reject_whitespace_name(){
+        let instance_id =  SubsystemInstanceId::new("valid-instance-id".to_string()).unwrap();
+        let type_id = SubsystemTypeId::new("valid-type-id".to_string()).unwrap();
+        let name = "   ".to_string();
+        let description = "A valid subsystem for testing".to_string();
+        let implementation_version = semver::Version::parse("1.0.0").unwrap();
+        let interface_version = semver::Version::parse("1.0.0").unwrap();
+
+        let metadata = SubsystemMetadata::new(instance_id, type_id, name, description, implementation_version, interface_version);
+        assert!(metadata.is_err());
+        assert_eq!(metadata.unwrap_err(), SubsystemMetadataError::InvalidName);
+    }
+}
